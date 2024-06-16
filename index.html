@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LYMA DIVERSOS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        header {
+            background-color: #007BAA;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        header img {
+            height: 20%;
+            width: 20%;
+        }
+        nav {
+            margin: 20px 0;
+            text-align: center;
+        }
+        nav a {
+            margin: 0 15px;
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .product {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .product img {
+            max-width: 100px;
+            margin-bottom: 20px;
+        }
+        .product h3 {
+            margin: 0 0 10px 0;
+        }
+        .product p {
+            margin: 10px 0;
+        }
+        .product button {
+            background-color: #007700;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: auto; /* Move o botão para o final do container flexível */
+        }
+        .product button:hover {
+            background-color: #555;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarProdutos();
+        });
+
+        function carregarProdutos() {
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const productContainer = document.getElementById('product-container');
+            productContainer.innerHTML = '';
+
+            produtos.forEach(produto => {
+                const productElement = document.createElement('div');
+                productElement.classList.add('product');
+
+                // Adicionando a imagem do produto
+                const imagemElement = document.createElement('img');
+                imagemElement.src = produto.imagem;
+                imagemElement.alt = produto.nome;
+                imagemElement.style.maxWidth = '110px'; // Ajuste conforme necessário
+
+                const titleElement = document.createElement('h3');
+                titleElement.textContent = produto.nome;
+
+                const descriptionElement = document.createElement('p');
+                descriptionElement.textContent = produto.descricao;
+
+                const priceElement = document.createElement('p');
+                priceElement.textContent = `Preço: R$ ${produto.preco.toFixed(2)}`;
+
+                const buttonElement = document.createElement('button');
+                buttonElement.textContent = 'Adicionar ao carrinho';
+                buttonElement.onclick = () => adicionarAoCarrinho(produto);
+
+                productElement.appendChild(imagemElement);
+                productElement.appendChild(titleElement);
+                productElement.appendChild(descriptionElement);
+                productElement.appendChild(priceElement);
+                productElement.appendChild(buttonElement);
+
+                productContainer.appendChild(productElement);
+            });
+        }
+
+        function adicionarAoCarrinho(produto) {
+            let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            let itemExistente = carrinho.find(item => item.produto === produto.nome);
+
+            if (itemExistente) {
+                itemExistente.quantidade += 1;
+            } else {
+                carrinho.push({ produto: produto.nome, preco: produto.preco, quantidade: 1 });
+            }
+
+            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+            alert('Produto adicionado ao carrinho!');
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Logo">
+        <h1>CATÁLOGO PRODUTOS</h1>
+    </header>
+    <nav>
+        <a href="index.html">Início</a>
+        <a href="cart.html">Carrinho</a>
+    </nav>
+    <div class="container" id="product-container">
+        <!-- Produtos serão carregados aqui -->
+    </div>
+    <footer>
+        <p>&copy; 2024 Loja Online. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

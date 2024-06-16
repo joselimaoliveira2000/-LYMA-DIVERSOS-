@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Online - Produtos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        nav {
+            margin: 20px 0;
+            text-align: center;
+        }
+        nav a {
+            margin: 0 15px;
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .product-list li {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        .product-list li img {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
+        .product-list li .product-info {
+            flex-grow: 1;
+        }
+        .product-list li .product-info h3 {
+            margin: 0;
+        }
+        .product-list li .product-info p {
+            margin: 5px 0;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 20px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarProdutos();
+        });
+
+        function carregarProdutos() {
+            let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+            const productContainer = document.getElementById('product-container');
+            productContainer.innerHTML = '';
+
+            produtos.forEach(produto => {
+                const li = document.createElement('li');
+                li.classList.add('product-item');
+
+                const img = document.createElement('img');
+                img.src = produto.imagem;
+                img.alt = produto.nome;
+
+                const divInfo = document.createElement('div');
+                divInfo.classList.add('product-info');
+
+                const h3 = document.createElement('h3');
+                h3.textContent = produto.nome;
+
+                const pDescricao = document.createElement('p');
+                pDescricao.textContent = produto.descricao;
+
+                const pPreco = document.createElement('p');
+                pPreco.textContent = `Preço: R$ ${produto.preco.toFixed(2)}`;
+
+                divInfo.appendChild(h3);
+                divInfo.appendChild(pDescricao);
+                divInfo.appendChild(pPreco);
+
+                li.appendChild(img);
+                li.appendChild(divInfo);
+
+                productContainer.appendChild(li);
+            });
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Loja Online - Produtos</h1>
+    </header>
+    <nav>
+        <a href="index.html">Início</a>
+        <a href="index.html">Produtos</a>
+        <a href="cart.html">Carrinho</a>
+        <a href="admin.html">Administração</a>
+    </nav>
+    <div class="container">
+        <h2>Lista de Produtos</h2>
+        <ul class="product-list" id="product-container">
+            <!-- Produtos serão carregados aqui -->
+        </ul>
+    </div>
+    <footer>
+        <p>&copy; 2024 Loja Online. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

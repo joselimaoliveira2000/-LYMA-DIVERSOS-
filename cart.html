@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinho de Compras</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+            color: #333;
+        }
+        header {
+            background-color: #006400; /* Verde bandeira */
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        nav {
+            margin: 20px 0;
+            text-align: center;
+        }
+        nav a {
+            margin: 0 15px;
+            color: #006400; /* Verde bandeira */
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #004d00; /* Verde mais escuro */
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #cart {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #cart h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #006400; /* Verde bandeira */
+        }
+        #cart ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #cart li {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .cart-item {
+            flex-grow: 1;
+            font-size: 1.1em;
+        }
+        .cart-actions {
+            display: flex;
+            align-items: center;
+        }
+        .cart-actions button {
+            background-color: #006400; /* Verde bandeira */
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .cart-actions button:hover {
+            background-color: #004d00; /* Verde mais escuro */
+        }
+        
+        #whatsapp-button {
+            background-color: #25D366;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            display: none; /* Initially hidden */
+            margin: 20px auto;
+            text-align: center;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #whatsapp-button:hover {
+            background-color: #1EBE5B;
+        }
+        /* Style for checkout form */
+        #checkout-form {
+            display: none; /* Initially hidden */
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        #checkout-form label,
+        #checkout-form select,
+        #checkout-form input {
+            margin-bottom: 10px;
+            display: block;
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        #checkout-form button {
+            background-color: #006400; /* Verde bandeira */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        #checkout-form button:hover {
+            background-color: #004d00; /* Verde mais escuro */
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            atualizarCarrinho();
+            toggleCheckoutForm(false); // Hide checkout form initially
+
+            document.getElementById('clear-cart').addEventListener('click', () => {
+                localStorage.removeItem('carrinho');
+                atualizarCarrinho();
+                toggleCheckoutForm(false); // Hide checkout form when clearing cart
+            });
+
+            document.getElementById('whatsapp-button').addEventListener('click', () => {
+                toggleCheckoutForm(true); // Show checkout form when clicking WhatsApp button
+            });
+
+            document.getElementById('checkout-form').addEventListener('submit', (event) => {
+                event.preventDefault();
+                const form = event.target;
+                const nome = form['nome'].value;
+                const formaPagamento = form['forma-pagamento'].value;
+
+                enviarPedidoViaWhatsApp(nome, formaPagamento);
+
+                // Clear cart and hide form after sending WhatsApp message
+                localStorage.removeItem('carrinho');
+                atualizarCarrinho();
+                toggleCheckoutForm(false);
+            });
+        });
+
+        function atualizarCarrinho() {
+            let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            const cartList = document.getElementById('cart-list');
+            cartList.innerHTML = '';
+            let total = 0;
+
+            carrinho.forEach((item, index) => {
+                const li = document.createElement('li');
+
+                const itemName = document.createElement('span');
+                const itemTotal = item.preco * item.quantidade;
+                itemName.textContent = `${item.produto} - R$ ${item.preco.toFixed(2)} x ${item.quantidade} = R$ ${itemTotal.toFixed(2)}`;
+                itemName.classList.add('cart-item');
+
+                const itemActions = document.createElement('div');
+                itemActions.classList.add('cart-actions');
+
+                const incrementButton = document.createElement('button');
+                incrementButton.textContent = '+';
+                incrementButton.onclick = () => {
+                    item.quantidade += 1;
+                    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+                    atualizarCarrinho();
+                };
+
+                const decrementButton = document.createElement('button');
+                decrementButton.textContent = '-';
+                decrementButton.onclick = () => {
+                    if (item.quantidade > 1) {
+                        item.quantidade -= 1;
+                    } else {
+                        carrinho.splice(index, 1);
+                    }
+                    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+                    atualizarCarrinho();
+                };
+
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remover';
+                removeButton.onclick = () => {
+                    carrinho.splice(index, 1);
+                    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+                    atualizarCarrinho();
+                };
+
+                itemActions.appendChild(incrementButton);
+                itemActions.appendChild(decrementButton);
+                itemActions.appendChild(removeButton);
+
+                li.appendChild(itemName);
+                li.appendChild(itemActions);
+                cartList.appendChild(li);
+
+                total += itemTotal;
+            });
+
+            const totalElement = document.getElementById('cart-total');
+            totalElement.textContent = `Total: R$ ${total.toFixed(2)}`;
+
+            // Toggle visibility of WhatsApp button based on cart contents
+            const whatsappButton = document.getElementById('whatsapp-button');
+            whatsappButton.style.display = carrinho.length > 0 ? 'block' : 'none';
+        }
+
+        function toggleCheckoutForm(show) {
+            const checkoutForm = document.getElementById('checkout-form');
+            checkoutForm.style.display = show ? 'block' : 'none';
+        }
+
+        function enviarPedidoViaWhatsApp(nome, formaPagamento) {
+            let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+            if (carrinho.length === 0) {
+                alert("O carrinho está vazio!");
+                return;
+            }
+
+            let mensagem = `Pedido de ${nome}:\n`;
+            let total = 0;
+
+            carrinho.forEach(item => {
+                const itemTotal = item.preco * item.quantidade;
+                mensagem += `${item.produto} - R$ ${item.preco.toFixed(2)} x ${item.quantidade} = R$ ${itemTotal.toFixed(2)}\n`;
+                total += itemTotal;
+            });
+
+            mensagem += `\nTotal: R$ ${total.toFixed(2)}\n`;
+            mensagem += `Forma de Pagamento: ${formaPagamento}`;
+
+            const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</head>
+<body>
+
+<header>
+    <h1>Carrinho de Compras</h1>
+</header>
+<nav>
+    <a href="index.html">Início</a>
+    <a href="cart.html">Carrinho</a>
+
+</nav>
+<div class="container">
+    <div id="cart">
+        <h2>Itens no Carrinho</h2>
+        <ul id="cart-list"></ul>
+        <p id="cart-total">Total: R$ 0,00</p>
+        <button id="clear-cart">Esvaziar Carrinho</button>
+        <button id="whatsapp-button"> Finalizar Pedido</button>
+        <form id="checkout-form">
+            <label for="nome">Digite seu nome abaixo: </label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="forma-pagamento">Forma de Pagamento:</label>
+            <select id="forma-pagamento" name="forma-pagamento" required>
+                <option value="">Selecione uma opção</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+                <option value="Transferência Bancária">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+            </select>
+
+            <button type="submit"> 📲 Enviar Pedido via WhatsApp</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
